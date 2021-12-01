@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1638313869,
+        "narHash": "sha256-EPsy+IjeFmmU3jxUQhespjUfuGMfRpm6LSRILhZHv+k=",
+        "owner": "costrouc",
+        "repo": "nixpkgs",
+        "rev": "fb2171cef441d30d7c84447e4bff3e0a6c708517",
+        "type": "github"
+      },
+      "original": {
+        "owner": "costrouc",
+        "ref": "python-terraformpy",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
