@@ -1,5 +1,9 @@
 # Usage
 
+Dependencies are:
+ - terraformpy
+ - pydantic
+
 Do a "mock" render of the terraform files
 
 ```python
