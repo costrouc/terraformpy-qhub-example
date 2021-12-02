@@ -47,6 +47,11 @@ def deploy():
         from qhub_tf.modules.azure import Infrastructure
         Infrastructure(qhub_config=qhub_config)
 
+    # AWS
+    with render_terraform('/tmp/remote_state/aws'):
+        from qhub_tf.modules.aws import RemoteState
+        RemoteState(qhub_config=qhub_config)
+
 
 if __name__ == "__main__":
     deploy()
