@@ -4,7 +4,7 @@ from terraformpy import Resource, Data
 from pydantic import BaseModel, conlist, conint, PositiveInt
 
 from qhub_tf.utils import ResourceCollection
-from qhub_tf.gcp.service_account import ServiceAccount
+from qhub_tf.modules.gcp.service_account import ServiceAccount
 
 
 class GuestAccelerator(BaseModel):

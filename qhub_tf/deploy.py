@@ -22,11 +22,11 @@ def deploy():
 
     # stage 1 infrastructure
     with render_terraform('/tmp/infrastructure/do'):
-        from qhub_tf.digital_ocean import Infrastructure
+        from qhub_tf.modules.digital_ocean import Infrastructure
         Infrastructure(qhub_config=qhub_config)
 
     with render_terraform('/tmp/infrastructure/google'):
-        from qhub_tf.gcp import Infrastructure
+        from qhub_tf.modules.gcp import Infrastructure
         Infrastructure(qhub_config=qhub_config)
 
 

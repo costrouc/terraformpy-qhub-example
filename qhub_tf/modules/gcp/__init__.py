@@ -3,9 +3,9 @@ from typing import Dict, Any
 from terraformpy import Provider, Terraform
 
 from qhub_tf.utils import ResourceCollection
-from qhub_tf.gcp.network import Network
-from qhub_tf.gcp.registry import ContainerRegistry
-from qhub_tf.gcp.kubernetes import KubernetesCluster
+from qhub_tf.modules.gcp.network import Network
+from qhub_tf.modules.gcp.registry import ContainerRegistry
+from qhub_tf.modules.gcp.kubernetes import KubernetesCluster
 
 
 class Infrastructure(ResourceCollection):

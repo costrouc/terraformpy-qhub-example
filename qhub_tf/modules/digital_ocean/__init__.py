@@ -3,8 +3,8 @@ from typing import Dict, Any
 from terraformpy import Provider, Terraform
 
 from qhub_tf.utils import ResourceCollection
-from qhub_tf.digital_ocean.kubernetes import KubernetesCluster
-from qhub_tf.digital_ocean.registry import ContainerRegistry
+from qhub_tf.modules.digital_ocean.kubernetes import KubernetesCluster
+from qhub_tf.modules.digital_ocean.registry import ContainerRegistry
 
 
 class Infrastructure(ResourceCollection):
