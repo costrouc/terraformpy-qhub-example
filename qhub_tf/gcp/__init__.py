@@ -5,6 +5,7 @@ from terraformpy import Provider, Terraform
 from qhub_tf.utils import ResourceCollection
 from qhub_tf.gcp.network import Network
 from qhub_tf.gcp.registry import ContainerRegistry
+from qhub_tf.gcp.kubernetes import KubernetesCluster
 
 
 class Infrastructure(ResourceCollection):
@@ -27,3 +28,9 @@ class Infrastructure(ResourceCollection):
             )
 
             ContainerRegistry()
+
+            KubernetesCluster(
+                name="atest-deleteme",
+                location="us-east1",
+                node_locations=["us-east1-a", "us-east1-b"],
+            )
