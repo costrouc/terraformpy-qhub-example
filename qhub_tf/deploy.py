@@ -28,6 +28,10 @@ def deploy():
         from qhub_tf.modules.gcp import Infrastructure
         Infrastructure(qhub_config=qhub_config)
 
+    with render_terraform('/tmp/remote_state/azure'):
+        from qhub_tf.modules.azure import RemoteState
+        RemoteState(qhub_config=qhub_config)
+
     with render_terraform('/tmp/infrastructure/azure'):
         from qhub_tf.modules.azure import Infrastructure
         Infrastructure(qhub_config=qhub_config)
