@@ -20,14 +20,25 @@ def deploy():
         'a': 'fake qhub-config.yaml'
     }
 
+    # DIGITAL OCEAN
+    with render_terraform('/tmp/remote_state/do'):
+        from qhub_tf.modules.digital_ocean import RemoteState
+        RemoteState(qhub_config=qhub_config)
+
     with render_terraform('/tmp/infrastructure/do'):
         from qhub_tf.modules.digital_ocean import Infrastructure
         Infrastructure(qhub_config=qhub_config)
+
+    # GOOGLE COMPUTE
+    with render_terraform('/tmp/remote_state/google'):
+        from qhub_tf.modules.gcp import RemoteState
+        RemoteState(qhub_config=qhub_config)
 
     with render_terraform('/tmp/infrastructure/google'):
         from qhub_tf.modules.gcp import Infrastructure
         Infrastructure(qhub_config=qhub_config)
 
+    # AZURE
     with render_terraform('/tmp/remote_state/azure'):
         from qhub_tf.modules.azure import RemoteState
         RemoteState(qhub_config=qhub_config)

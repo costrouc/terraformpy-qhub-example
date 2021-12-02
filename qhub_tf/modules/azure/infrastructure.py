@@ -20,7 +20,7 @@ class Infrastructure(ResourceCollection):
             }
         )
 
-        with Provider('azurerm', features={}, alias='test'):
+        with Provider('azurerm', features={}, alias='infrastructure'):
             ContainerRegistry(
                 name="atest-deleteme",
                 resource_group_name="atest-deleteme",
