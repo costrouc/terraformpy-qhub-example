@@ -21,8 +21,12 @@ def deploy():
     }
 
     # stage 1 infrastructure
-    with render_terraform('/tmp/infrastructure'):
+    with render_terraform('/tmp/infrastructure/do'):
         from qhub_tf.digital_ocean import Infrastructure
+        Infrastructure(qhub_config=qhub_config)
+
+    with render_terraform('/tmp/infrastructure/google'):
+        from qhub_tf.gcp import Infrastructure
         Infrastructure(qhub_config=qhub_config)
 
 

@@ -25,7 +25,11 @@ class Infrastructure(ResourceCollection):
                 name="atest-deleteme",
                 region="nyc1",
                 kubernetes_version="1.21.5-do.0",
-                node_groups=["left", "middle", "right"],
+                node_groups=[
+                    {"name": "left"},
+                    {"name": "middle", "max_nodes": 3},
+                    {"name": "right"}
+                ],
                 tags=["another", "tag"]
             )
 
