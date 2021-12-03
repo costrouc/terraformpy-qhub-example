@@ -26,29 +26,29 @@ def test_terraform_version():
     assert terraform.version() == terraform.TERRAFORM_VERSION
 
 
-def test_terraform_init_apply_output_destroy():
+def test_terraform_init_apply_output_destroy(tmpdir):
     """Difficult to split into separate unit tests"""
-    with tempfile.TemporaryDirectory() as tempdir:
-        _write_terraform_test(tempdir)
-        terraform.init(tempdir)
-        assert {".terraform.lock.hcl", ".terraform", "example.tf"} == set(
-            os.listdir(tempdir)
-        )
-        terraform.apply(tempdir)
-        assert {
-            "example.txt",
-            "terraform.tfstate",
-            ".terraform.lock.hcl",
-            ".terraform",
-            "example.tf",
-        } == set(os.listdir(tempdir))
-        output = json.loads(terraform.output(tempdir))
-        assert output["output_test"]["value"] == "test"
-        terraform.destroy(tempdir)
-        assert {
-            "terraform.tfstate.backup",
-            "terraform.tfstate",
-            ".terraform.lock.hcl",
-            ".terraform",
-            "example.tf",
-        } == set(os.listdir(tempdir))
+    _write_terraform_test(tmpdir)
+    terraform.init(tmpdir)
+    assert {".terraform.lock.hcl", ".terraform", "example.tf"} == set(
+        os.listdir(tmpdir)
+    )
+    terraform.validate(tmpdir)
+    terraform.apply(tmpdir)
+    assert {
+        "example.txt",
+        "terraform.tfstate",
+        ".terraform.lock.hcl",
+        ".terraform",
+        "example.tf",
+    } == set(os.listdir(tmpdir))
+    output = json.loads(terraform.output(tmpdir))
+    assert output["output_test"]["value"] == "test"
+    terraform.destroy(tmpdir)
+    assert {
+        "terraform.tfstate.backup",
+        "terraform.tfstate",
+        ".terraform.lock.hcl",
+        ".terraform",
+        "example.tf",
+    } == set(os.listdir(tmpdir))

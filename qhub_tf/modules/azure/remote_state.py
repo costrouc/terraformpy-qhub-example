@@ -3,10 +3,11 @@ from typing import Any, Dict
 from terraformpy import Resource, Terraform, Provider
 
 from qhub_tf.utils import ResourceCollection
+from qhub_tf.schema import QHubConfig
 
 
 class RemoteState(ResourceCollection):
-    qhub_config: Dict[str, Any]
+    qhub_config: QhubConfig
 
     def create_resources(self):
         Terraform(

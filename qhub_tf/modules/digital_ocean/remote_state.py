@@ -2,16 +2,18 @@ from typing import Any, Dict
 
 from terraformpy import Resource, Terraform, Provider
 
-from qhub_tf.utils import ResourceCollection
+from qhub_tf.utils import ResourceCollection, require_environment_variables
+from qhub_tf.schema import QHubConfig
 from qhub_tf.modules.digital_ocean.spaces import Spaces
 
 
 class RemoteState(ResourceCollection):
-    qhub_config: Dict[str, Any]
+    qhub_config: QHubConfig
 
     def create_resources(self):
-        name = "testname"
-        region = "nyc3"
+        require_environment_variables([
+            'DIGITALOCEAN_TOKEN'
+        ])
 
         Terraform(
             required_providers={
@@ -24,8 +26,8 @@ class RemoteState(ResourceCollection):
 
         with Provider('digitalocean', alias='remote_state'):
             Spaces(
-                name=f"{name}-terraform-state",
-                region=region,
+                name=f"{self.qhub_config.project}-terraform-state",
+                region=self.qhub_config.digital_ocean.region,
                 public=False,
                 force_destroy=True,
             )

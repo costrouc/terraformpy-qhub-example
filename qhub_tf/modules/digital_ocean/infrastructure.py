@@ -3,12 +3,13 @@ from typing import Dict, Any
 from terraformpy import Provider, Terraform
 
 from qhub_tf.utils import ResourceCollection
+from qhub_tf.schema import QHubConfig
 from qhub_tf.modules.digital_ocean.kubernetes import KubernetesCluster
 from qhub_tf.modules.digital_ocean.registry import ContainerRegistry
 
 
 class Infrastructure(ResourceCollection):
-    qhub_config: Dict[str, Any]
+    qhub_config: QHubConfig
 
     def create_resources(self):
         Terraform(
