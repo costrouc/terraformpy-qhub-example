@@ -19,9 +19,9 @@ class KubernetesCluster(ResourceCollection):
     node_resource_group_name: str
     kubernetes_version: str
     node_groups: conlist(NodeGroup, min_items=1) = [
-        NodeGroup(name="general", instance_type="Standard_D4_v3", min_nodes=1, max_nodes=1),
-        NodeGroup(name="user", min_nodes=0, max_nodes=5),
-        NodeGroup(name="worker", min_nodes=0, max_nodes=5),
+        NodeGroup(name="general", instance_type="Standard_D4_v3", min_size=1, max_size=1),
+        NodeGroup(name="user", min_size=0, max_size=5),
+        NodeGroup(name="worker", min_size=0, max_size=5),
     ]
 
     def create_resources(self):
@@ -41,7 +41,7 @@ class KubernetesCluster(ResourceCollection):
             # Service will fail.
             node_resource_group = self.node_resource_group_name,
 
-            kubernetes_versoin=self.kubernetes_version,
+            kubernetes_version=self.kubernetes_version,
 
             default_node_pool = dict(
                 name = self.node_groups[0].name,
@@ -68,7 +68,7 @@ class KubernetesCluster(ResourceCollection):
         for i, node_group in enumerate(self.node_groups[1:]):
             # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool
             Resource(
-                "azure_kubernetes_cluster_node_pool", "main-{i}",
+                "azurerm_kubernetes_cluster_node_pool", f"main-{i}",
                 name = node_group.name,
                 kubernetes_cluster_id = cluster.id,
                 vm_size = node_group.instance_type,

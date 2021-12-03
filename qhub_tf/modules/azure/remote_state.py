@@ -27,19 +27,19 @@ class RemoteState(ResourceCollection):
 
             storage_account = Resource(
                 "azurerm_storage_account", "terraform-storage-account",
-                name = f"sample-resource-groupasdfasdfasdf".replace("-", ""),
+                name = f"sample-resource-groupa".replace("-", ""),
                 resource_group_name = resource_group.name,
                 location = resource_group.location,
                 account_tier = "Standard",
                 account_replication_type = "GRS",
-                identify = {
+                identity = {
                     "type": "SystemAssigned"
                 }
             )
 
             Resource(
-                "azure_storage_container", "storage_container",
-                name=f"asdfasdfasdf state",
+                "azurerm_storage_container", "storage_container",
+                name=f"asdfasdfasdf-state".replace("-", ""),
                 storage_account_name = storage_account.name,
                 container_access_type = "private",
             )

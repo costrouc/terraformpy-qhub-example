@@ -1,18 +1,7 @@
 import os
-import contextlib
 import json
 
-import terraformpy
-
-
-@contextlib.contextmanager
-def render_terraform(directory):
-    terraformpy.reset()
-    yield
-    terraform_output = terraformpy.compile()
-    os.makedirs(directory, exist_ok=True)
-    with open(os.path.join(directory, 'main.tf.json'), 'w') as f:
-        json.dump(terraform_output, f, sort_keys=True, indent=4)
+from qhub_tf.utils import render_terraform
 
 
 def deploy():

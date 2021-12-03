@@ -27,6 +27,7 @@ class KubernetesCluster(ResourceCollection):
     # INPUTS
     name: str
     location: str
+    project: str
     node_locations: List[str]
     node_groups: conlist(NodeGroup, min_items=1) = [
         NodeGroup(name="general", min_size=1, max_size=1),
@@ -68,12 +69,13 @@ class KubernetesCluster(ResourceCollection):
             remove_default_node_pool=True,
             initial_node_count=1,
             lifecycle={
-                "ingnore_changes": [self.node_locations]
+                "ignore_changes": self.node_locations
             }
         )
 
         service_account = ServiceAccount(
             account_id=self.name,
+            project=self.project,
             roles=self.default_node_group_roles + self.additional_node_group_roles
         )
 

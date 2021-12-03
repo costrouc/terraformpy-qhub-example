@@ -11,7 +11,7 @@ class RemoteState(ResourceCollection):
 
     def create_resources(self):
         name = "testname"
-        region = "nyc1"
+        region = "nyc3"
 
         Terraform(
             required_providers={

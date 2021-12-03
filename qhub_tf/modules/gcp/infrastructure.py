@@ -32,5 +32,6 @@ class Infrastructure(ResourceCollection):
             KubernetesCluster(
                 name="atest-deleteme",
                 location="us-east1",
+                project="asdf",
                 node_locations=["us-east1-a", "us-east1-b"],
             )

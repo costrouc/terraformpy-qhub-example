@@ -9,6 +9,7 @@ class ServiceAccount(ResourceCollection):
     # INPUTS
     account_id: str
     roles: List[str]
+    project: str
 
     # OUTPUTS
     google_service_account: Optional[Resource] = None
@@ -22,7 +23,8 @@ class ServiceAccount(ResourceCollection):
 
         for role in self.roles:
             Resource(
-                "google_project_iam_memeber", "main",
+                "google_project_iam_member", "main",
                 role=role,
+                project=self.project,
                 member=f"serviceAccount:{self.google_service_account.email}",
             )

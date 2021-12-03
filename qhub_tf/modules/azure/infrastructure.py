@@ -22,15 +22,15 @@ class Infrastructure(ResourceCollection):
 
         with Provider('azurerm', features={}, alias='infrastructure'):
             ContainerRegistry(
-                name="atest-deleteme",
-                resource_group_name="atest-deleteme",
+                name="atestdeleteme",
+                resource_group_name="atestdeleteme",
                 location="us-east",
             )
 
             KubernetesCluster(
-                name="atest-deleteme",
+                name="atestdeleteme",
                 location="us-east",
-                resource_group_name="atest-deleteme1",
-                node_resource_group_name="atest-deleteme2",
+                resource_group_name="atestdeleteme1",
+                node_resource_group_name="atestdeleteme2",
                 kubernetes_version="1.18",
             )

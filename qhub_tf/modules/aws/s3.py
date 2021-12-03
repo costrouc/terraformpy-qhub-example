@@ -19,7 +19,7 @@ class S3(ResourceCollection):
     def create_resources(self):
         self.bucket = Resource(
             "aws_s3_bucket", self.name,
-            name=self.name,
+            bucket=self.name,
             acl=self.acl,
             force_destroy=self.force_destroy,
             versioning=dict(

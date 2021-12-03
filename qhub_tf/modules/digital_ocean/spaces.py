@@ -11,8 +11,8 @@ class Spaces(ResourceCollection):
 
     def create_resources(self):
         Resource(
-            "digitalocean_spaces", "main",
+            "digitalocean_spaces_bucket", "main",
             name=self.name,
             region=self.region,
-            force_destory=self.force_destroy,
+            force_destroy=self.force_destroy,
         )
