@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict
 
 from terraformpy import Terraform, Provider
@@ -25,7 +26,7 @@ class RemoteState(ResourceCollection):
             }
         )
 
-        with Provider('google', alias='remote_state'):
+        with Provider('google', project=os.environ['PROJECT_ID'], alias='remote_state'):
             GoogleStorage(
                 name=f"{self.qhub_config.project_name}-terraform-state",
                 location=self.qhub_config.google_cloud_platform.region,
