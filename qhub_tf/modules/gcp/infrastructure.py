@@ -2,7 +2,7 @@ from typing import Dict, Any
 
 from terraformpy import Provider, Terraform
 
-from qhub_tf.utils import ResourceCollection
+from qhub_tf.utils import ResourceCollection, require_environment_variables
 from qhub_tf.schema import QHubConfig
 from qhub_tf.modules.gcp.network import Network
 from qhub_tf.modules.gcp.registry import ContainerRegistry
@@ -13,6 +13,11 @@ class Infrastructure(ResourceCollection):
     qhub_config: QHubConfig
 
     def create_resources(self):
+        require_environment_variables([
+            'PROJECT_ID',
+            'GOOGLE_CREDENTIALS',
+        ])
+
         Terraform(
             required_providers={
                 "google": {

@@ -1,6 +1,7 @@
 import enum
 import typing
 from abc import ABC
+import random
 
 import pydantic
 from pydantic import validator, root_validator
@@ -52,8 +53,8 @@ class Base(pydantic.BaseModel):
 
 
 class CICD(Base):
-    type: CiEnum
-    branch: str
+    type: CiEnum = CiEnum.none
+    branch: str = "main"
     before_script: typing.Optional[typing.List[str]]
     after_script: typing.Optional[typing.List[str]]
 
@@ -71,7 +72,7 @@ class HelmExtension(Base):
 
 
 class Monitoring(Base):
-    enabled: bool
+    enabled: bool = True
 
 
 # ============== ClearML =============
@@ -95,7 +96,7 @@ class Prefect(Base):
 
 
 class TerraformState(Base):
-    type: TerraformStateEnum
+    type: TerraformStateEnum = TerraformStateEnum.remote
     backend: typing.Optional[str]
     config: typing.Optional[typing.Dict[str, str]]
 
@@ -110,7 +111,7 @@ class TerraformModules(Base):
 
 
 class Certificate(Base):
-    type: CertificateEnum
+    type: CertificateEnum = CertificateEnum.selfsigned
     # existing
     secret_name: typing.Optional[str]
     # lets-encrypt
@@ -122,11 +123,11 @@ class Certificate(Base):
 
 
 class DefaultImages(Base):
-    jupyterhub: str
-    jupyterlab: str
-    dask_worker: str
-    dask_gateway: str
-    conda_store: str
+    jupyterhub: str = f"quansight/qhub-jupyterhub:v{__version__}"
+    jupyterlab: str = f"quansight/qhub-jupyterlab:v{__version__}"
+    dask_worker: str = f"quansight/qhub-dask-worker:v{__version__}"
+    dask_gateway: str = f"quansight/qhub-dask-gateway:v{__version__}"
+    conda_store: str = f"quansight/qhub-conda-store:v{__version__}"
 
 
 # =========== Authentication ==============
@@ -143,51 +144,17 @@ class Auth0Config(Base):
     auth0_subdomain: str
 
 
-class Authentication(Base, ABC):
-    _types: typing.Dict[str, type] = {}
-
-    type: AuthenticationEnum
-
-    # Based on https://github.com/samuelcolvin/pydantic/issues/2177#issuecomment-739578307
-
-    # This allows type field to determine which subclass of Authentication should be used for validation.
-
-    # Used to register automatically all the submodels in `_types`.
-    def __init_subclass__(cls):
-        cls._types[cls._typ.value] = cls
-
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value: typing.Dict[str, typing.Any]) -> "Authentication":
-        if "type" not in value:
-            raise ValueError("type field is missing from security.authentication")
-
-        specified_type = value.get("type")
-        sub_class = cls._types.get(specified_type, None)
-
-        if not sub_class:
-            raise ValueError(
-                f"No registered Authentication type called {specified_type}"
-            )
-
-        # init with right submodel
-        return sub_class(**value)
+class PasswordAuthentication(Base):
+    type: AuthenticationEnum = AuthenticationEnum.password
 
 
-class PasswordAuthentication(Authentication):
-    _typ = AuthenticationEnum.password
-
-
-class Auth0Authentication(Authentication):
-    _typ = AuthenticationEnum.auth0
+class Auth0Authentication(Base):
+    type: AuthenticationEnum = AuthenticationEnum.auth0
     config: Auth0Config
 
 
-class GitHubAuthentication(Authentication):
-    _typ = AuthenticationEnum.github
+class GitHubAuthentication(Base):
+    type: AuthenticationEnum = AuthenticationEnum.github
     config: GitHubConfig
 
 
@@ -216,7 +183,11 @@ class Keycloak(Base):
 
 
 class Security(Base):
-    authentication: Authentication
+    authentication: typing.Union[
+        PasswordAuthentication,
+        Auth0Authentication,
+        GitHubAuthentication,
+    ]
     users: typing.Optional[typing.Dict[str, typing.Union[User, None]]]
     groups: typing.Optional[
         typing.Dict[str, typing.Union[Group, None]]
@@ -249,45 +220,90 @@ class NodeGroup(Base):
 
 
 class DigitalOceanProvider(Base):
-    region: str
-    kubernetes_version: str
-    node_groups: typing.Dict[str, NodeGroup]
+    region: str = "nyc3"
+    kubernetes_version: str = "1.21.5-do.0"
+    # Digital Ocean image slugs are listed here https://slugs.do-api.dev/
+    node_groups: typing.Dict[str, NodeGroup] = {
+        "general": NodeGroup(instance="g-4vcpu-16gb", min_nodes=1, max_nodes=1),
+        "user": NodeGroup(instance="g-2vcpu-8gb", min_nodes=1, max_nodes=5),
+        "worker": NodeGroup(instance="g-2vcpu-8gb", min_nodes=1, max_nodes=5),
+    }
 
 
 class GoogleCloudPlatformProvider(Base):
-    project: str
-    region: str
-    zone: typing.Optional[str]  # No longer used
-    availability_zones: typing.Optional[typing.List[str]]  # Genuinely optional
-    kubernetes_version: str
-    node_groups: typing.Dict[str, NodeGroup]
+    region: str = "us-central1"
+    availability_zones: typing.Optional[typing.List[str]] = [
+        "us-central1-a",
+    ]
+    kubernetes_version: str = "1.18.16-gke.502"
+    node_groups: typing.Dict[str, NodeGroup] = {
+        "general": NodeGroup(instance="n1-standard-4", min_nodes=1, max_nodes=1),
+        "user": NodeGroup(instance="n1-standard-2", min_nodes=0, max_nodes=5),
+        "worker": NodeGroup(instance="n1-standard-2", min_nodes=0, max_nodes=5),
+    }
 
 
 class AzureProvider(Base):
-    project: str
-    region: str
-    kubernetes_version: str
-    node_groups: typing.Dict[str, NodeGroup]
-    storage_account_postfix: str
+    region: str = "Central US"
+    kubernetes_version: str = "1.21"
+    node_groups: typing.Dict[str, NodeGroup] = {
+        "general": NodeGroup(instance="Standard_D4_v3", min_nodes=1, max_nodes=1),
+        "user": NodeGroup(instance="Standard_D2_v2", min_nodes=0, max_nodes=5),
+        "worker": NodeGroup(instance="Standard_D2_v2", min_nodes=0, max_nodes=5),
+    }
+    storage_account_postfix: str = "".join(
+        random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=8)
+    )
 
 
 class AmazonWebServicesProvider(Base):
-    region: str
-    availability_zones: typing.Optional[typing.List[str]]
-    kubernetes_version: str
-    node_groups: typing.Dict[str, NodeGroup]
+    region: str = "us-west-2"
+    availability_zones: typing.Optional[typing.List[str]] = [
+        "us-west-2-den-1a",
+        "us-west-2-las-1a"
+    ]
+    kubernetes_version: str = "1.18"
+    node_groups: typing.Dict[str, NodeGroup] = {
+        "general": NodeGroup(instance="m5.xlarge", min_nodes=1, max_nodes=1),
+        "user": NodeGroup(instance="m5.large", min_nodes=1, max_nodes=5),
+        "worker": NodeGroup(instance="m5.large", min_nodes=1, max_nodes=5),
+    }
 
 
 class LocalProvider(Base):
     kube_context: typing.Optional[str]
-    node_selectors: typing.Dict[str, KeyValueDict]
+    node_selectors: typing.Dict[str, KeyValueDict] = {
+        "general": {
+            "key": "kubernetes.io/os",
+            "value": "linux",
+        },
+        "user": {
+            "key": "kubernetes.io/os",
+            "value": "linux",
+        },
+        "worker": {
+            "key": "kubernetes.io/os",
+            "value": "linux",
+        },
+    }
 
 
 # ================= Theme ==================
 
 
 class Theme(Base):
-    jupyterhub: typing.Dict[str, typing.Union[str, list]]
+    jupyterhub: typing.Dict[str, typing.Union[str, list]] = {
+        "hub_title": None,
+        "hub_subtitle": None,
+        "welcome": None,
+        "logo": "/hub/custom/images/jupyter_qhub_logo.svg",
+        "primary_color": "#4f4173",
+        "secondary_color": "#957da6",
+        "accent_color": "#32C574",
+        "text_color": "#111111",
+        "h1_color": "#652e8e",
+        "h2_color": "#652e8e",
+    }
 
 
 # ================== Profiles ==================
@@ -325,8 +341,50 @@ class DaskWorkerProfile(Base):
 
 
 class Profiles(Base):
-    jupyterlab: typing.List[JupyterLabProfile]
-    dask_worker: typing.Dict[str, DaskWorkerProfile]
+    jupyterlab: typing.List[JupyterLabProfile] = [
+        JupyterLabProfile(
+            display_name="Small Instance",
+            description="Stable environment with 1 cpu / 4 GB ram",
+            default=True,
+            kubespawner_override={
+                "cpu_limit": 1,
+                "cpu_guarantee": 0.75,
+                "mem_limit": "4G",
+                "mem_guarantee": "2.5G",
+                "image": f"quansight/qhub-jupyterlab:v{__version__}",
+            },
+        ),
+        JupyterLabProfile(
+            display_name="Medium Instance",
+            description="Stable environment with 2 cpu / 8 GB ram",
+            default=True,
+            kubespawner_override={
+                "cpu_limit": 2,
+                "cpu_guarantee": 1.5,
+                "mem_limit": "8G",
+                "mem_guarantee": "5G",
+                "image": f"quansight/qhub-jupyterlab:v{__version__}",
+            },
+        ),
+    ]
+    dask_worker: typing.Dict[str, DaskWorkerProfile] = {
+        "Small Worker": DaskWorkerProfile(
+            worker_cores_limit=1,
+            worker_cores=0.75,
+            worker_memory_limit="4G",
+            worker_memory="2.5G",
+            worker_threads=1,
+            image=f"quansight/qhub-dask-worker:v{__version__}",
+        ),
+        "Medium Worker": DaskWorkerProfile(
+            worker_cores_limit=2,
+            worker_cores=1.5,
+            worker_memory_limit="8G",
+            worker_memory="5G",
+            worker_threads=2,
+            image=f"quansight/qhub-dask-worker:v{__version__}",
+        )
+    }
 
     @validator("jupyterlab", pre=True)
     def check_default(cls, v, values):
@@ -352,9 +410,9 @@ class CondaEnvironment(Base):
 
 
 class CDSDashboards(Base):
-    enabled: bool
-    cds_hide_user_named_servers: typing.Optional[bool]
-    cds_hide_user_dashboard_servers: typing.Optional[bool]
+    enabled: bool = True
+    cds_hide_user_named_servers: typing.Optional[bool] = True
+    cds_hide_user_dashboard_servers: typing.Optional[bool] = True
 
 
 # =============== Extensions = = ==============
@@ -414,23 +472,23 @@ class ExtContainerReg(Base):
 # ============ QHub Config ============
 class QHubConfig(Base):
     project_name: str
-    namespace: typing.Optional[str]
+    namespace: str = "dev"
     provider: ProviderEnum
-    qhub_version: str = ""
+    qhub_version: str = __version__
     ci_cd: typing.Optional[CICD]
     domain: str
     terraform_state: typing.Optional[TerraformState]
-    terraform_modules: typing.Optional[
-        TerraformModules
-    ]  # No longer used, so ignored, but could still be in qhub-config.yaml
     certificate: Certificate
-    helm_extensions: typing.Optional[typing.List[HelmExtension]]
+    helm_extensions: typing.Optional[typing.List[HelmExtension]] = []
     prefect: typing.Optional[Prefect]
     cdsdashboards: CDSDashboards
     security: Security
     external_container_reg: typing.Optional[ExtContainerReg]
     default_images: DefaultImages
-    storage: typing.Dict[str, str]
+    storage: typing.Dict[str, str] = {
+        "conda_store": "60Gi",
+        "shared_filesystem": "100Gi"
+    }
     local: typing.Optional[LocalProvider]
     google_cloud_platform: typing.Optional[GoogleCloudPlatformProvider]
     amazon_web_services: typing.Optional[AmazonWebServicesProvider]
@@ -438,7 +496,40 @@ class QHubConfig(Base):
     digital_ocean: typing.Optional[DigitalOceanProvider]
     theme: Theme
     profiles: Profiles
-    environments: typing.Dict[str, CondaEnvironment]
+    environments: typing.Dict[str, CondaEnvironment] = {
+        "environment-dask.yaml": CondaEnvironment(
+            name="dask",
+            channels=["conda-forge"],
+            dependencies=[
+                "python",
+                "ipykernel",
+                "ipywidgets",
+                "qhub-dask ==0.3.13",
+                "python-graphviz",
+                "numpy",
+                "numba",
+                "pandas",
+            ],
+        ),
+        "environment-dashboard.yaml": CondaEnvironment(
+            name="dashboard",
+            channels=["conda-forge"],
+            dependencies=[
+                "python==3.9.7",
+                "ipykernel==6.4.1",
+                "ipywidgets==7.6.5",
+                "qhub-dask==0.3.13",
+                "param==1.11.1",
+                "python-graphviz==0.17",
+                "matplotlib==3.4.3",
+                "panel==0.12.4",
+                "voila==0.2.16",
+                "streamlit==1.0.0",
+                "dash==2.0.0",
+                "cdsdashboards-singleuser==0.6.0",
+            ],
+        )
+    }
     monitoring: typing.Optional[Monitoring]
     clearml: typing.Optional[ClearML]
     extensions: typing.Optional[typing.List[QHubExtension]]

@@ -7,7 +7,7 @@ from qhub_tf.schema import QHubConfig
 
 
 class RemoteState(ResourceCollection):
-    qhub_config: QhubConfig
+    qhub_config: QHubConfig
 
     def create_resources(self):
         Terraform(
