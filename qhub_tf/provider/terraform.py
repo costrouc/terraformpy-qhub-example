@@ -94,6 +94,11 @@ def validate(directory=None):
     run_terraform_subprocess(["validate", "-no-color"], cwd=directory)
 
 
+def plan(directory=None):
+    command = ["plan", "-no-color"]
+    run_terraform_subprocess(command, cwd=directory)
+
+
 def apply(directory=None, targets=None):
     targets = targets or []
     command = ["apply", "-auto-approve", "-no-color"] + ["-target=" + _ for _ in targets]

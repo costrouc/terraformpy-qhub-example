@@ -16,10 +16,7 @@ from qhub_tf.provider import terraform
 ])
 def test_terraform_check(resource, cloud_provider, tmpdir, qhub_config):
     with render_terraform(tmpdir):
-        print(cloud_provider)
-        config = qhub_config(cloud_provider)
-        print(config)
-        resource(qhub_config=config)
+        resource(qhub_config=qhub_config(cloud_provider))
 
     terraform.init(tmpdir)
     terraform.validate(tmpdir)
