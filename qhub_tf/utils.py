@@ -17,6 +17,7 @@ def render_terraform(directory: str):
     terraformpy.reset()
     yield
     terraform_output = terraformpy.compile()
+    print(terraform_output)
     os.makedirs(directory, exist_ok=True)
     with open(os.path.join(directory, 'main.tf.json'), 'w') as f:
         json.dump(terraform_output, f, sort_keys=True, indent=4)

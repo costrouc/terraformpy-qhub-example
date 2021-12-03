@@ -37,7 +37,7 @@ def run_subprocess(args: List[str], prefix: str = None, streaming: bool=False, *
         encoding="utf-8",
     )
     if streaming:
-        for line in process.stdout.readlines():
+        for line in process.stdout:
             print(line_prefix + line, end="")
     return process.wait()
 

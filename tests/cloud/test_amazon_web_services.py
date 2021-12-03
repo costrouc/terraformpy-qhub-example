@@ -11,8 +11,13 @@ def test_amazon_web_services_remote_state(tmpdir, qhub_config):
     remote_state_directory = tmpdir / "remote_state"
 
     with render_terraform(remote_state_directory):
-        RemoteState(qhub_config=qhub_config('do'))
+        RemoteState(qhub_config=qhub_config('aws'))
 
     terraform.init(remote_state_directory)
     terraform.validate(remote_state_directory)
     terraform.plan(remote_state_directory)
+
+    try:
+        terraform.apply(remote_state_directory)
+    finally:
+        terraform.destroy(remote_state_directory)

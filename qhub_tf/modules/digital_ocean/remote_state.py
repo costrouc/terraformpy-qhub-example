@@ -12,7 +12,9 @@ class RemoteState(ResourceCollection):
 
     def create_resources(self):
         require_environment_variables([
-            'DIGITALOCEAN_TOKEN'
+            'DIGITALOCEAN_TOKEN',
+            'SPACES_ACCESS_KEY_ID',
+            'SPACES_SECRET_ACCESS_KEY',
         ])
 
         Terraform(

@@ -16,3 +16,8 @@ def test_digital_ocean_remote_state(tmpdir, qhub_config):
     terraform.init(remote_state_directory)
     terraform.validate(remote_state_directory)
     terraform.plan(remote_state_directory)
+
+    try:
+        terraform.apply(remote_state_directory)
+    finally:
+        terraform.destroy(remote_state_directory)
