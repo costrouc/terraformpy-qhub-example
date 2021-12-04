@@ -1,14 +1,10 @@
-import os
-from typing import Any, Dict
-
 from terraformpy import Terraform, Provider
 
 from qhub_tf.utils import ResourceCollection, require_environment_variables
 from qhub_tf.schema import QHubConfig
-from qhub_tf.modules.gcp.storage import GoogleStorage
 
 
-class RemoteState(ResourceCollection):
+class RemoteBackend(ResourceCollection):
     qhub_config: QHubConfig
 
     def create_resources(self):
@@ -23,13 +19,11 @@ class RemoteState(ResourceCollection):
                     "source": "hashicorp/google",
                     "version": "~> 4.0",
                 }
-            }
-        )
-
-        with Provider('google', project=os.environ['PROJECT_ID'], alias='remote_state'):
-            GoogleStorage(
-                name=f"{self.qhub_config.project_name}-{self.qhub_config.namespace}-terraform-state",
-                location=self.qhub_config.google_cloud_platform.region,
-                public=False,
-                force_destroy=True,
+            },
+            backend=dict(
+                gcs=dict(
+                    bucket=f"{self.qhub_config.project_name}-{self.qhub_config.namespace}-terraform-state",
+                    prefix=f"terraform/{self.qhub_config.project_name}-{self.qhub_config.namespace}"
+                )
             )
+        )

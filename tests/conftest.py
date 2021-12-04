@@ -1,3 +1,5 @@
+import secrets
+
 import pytest
 
 from qhub_tf.initialize import render_config
@@ -7,7 +9,7 @@ from qhub_tf.initialize import render_config
 def qhub_config():
     def _qhub_config(cloud_provider: str):
         return render_config(
-            project_name="pytest-deleteme",
+            project_name=f"pytest-deleteme-{secrets.token_hex(4)}",
             qhub_domain="github-actions.qhub.dev",
             cloud_provider=cloud_provider,
             ci_provider="github-actions",

@@ -28,7 +28,7 @@ class RemoteState(ResourceCollection):
 
         with Provider('digitalocean', alias='remote_state'):
             Spaces(
-                name=f"{self.qhub_config.project_name}-terraform-state",
+                name=f"{self.qhub_config.project_name}-{self.qhub_config.namespace}-terraform-state",
                 region=self.qhub_config.digital_ocean.region,
                 public=False,
                 force_destroy=True,
